@@ -28,6 +28,7 @@
         "global-require": 0,
         "no-restricted-syntax": "off",
         "no-await-in-loop": "off",
-        "radix": "off"
+        "radix": "off",
+        "linebreak-style": ["error", "windows"]
     }
 }
