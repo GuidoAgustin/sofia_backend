@@ -42,7 +42,7 @@ app.use((req, res) => {
     });
 });
 
-const server = app.listen(process.env.PORT || 3000, () => {
+const server = app.listen(process.env.PORT || 3001, () => {
   const host = server.address().address;
   const { port } = server.address();
 
