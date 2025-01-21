@@ -27,26 +27,18 @@ module.exports = {
       next(error);
     }
   },
-  show: async (req, res, next) => {
+  scan: async (req, res, next) => {
     try {
-    // Start Transaction
-      const result = await models.sequelize.transaction(async (transaction) => {
-        const product = await models.product.findOne({
-          transaction,
-          where: {
-            code: req.params.code,
-          },
-        });
-
-        if (!product) throw new CustomError('product not found', 404);
-
-        return product;
+      const product = await models.product.findOne({
+        where: {
+          code: req.params.code,
+        },
       });
-      // Transaction complete!
-      res.status(200).send(response.getResponseCustom(200, result));
-      res.end();
+
+      if (!product) throw new CustomError('product not found', 404);
+
+      res.status(200).send(response.getResponseCustom(200, product));
     } catch (error) {
-    // Transaction Failed!
       next(error);
     }
   },
