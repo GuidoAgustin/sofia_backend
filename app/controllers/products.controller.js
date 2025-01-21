@@ -2,6 +2,7 @@ const models = require('../models');
 const response = require('../functions/serviceUtil.js');
 const paginable = require('../functions/paginable.js');
 const CustomError = require('../functions/CustomError.js');
+const validate = require('../functions/validate');
 // const authMiddleware = require('../middlewares/auth.js');
 
 module.exports = {
@@ -50,25 +51,58 @@ module.exports = {
     }
   },
 
-  create: async (req, res, next) => {
+  addProduct: async (req, res, next) => {
     try {
-    // Start Transaction
+    // Iniciar transacción
       const result = await models.sequelize.transaction(async (transaction) => {
-        const product = await models.product.create({
-          // CREATE ATTRIBUTES
-        }, { transaction });
+      // Validar los datos del formulario
+        console.log(req.body);
+        await validate(req.body, {
+          name_product: 'required', // Nombre del producto obligatorio
+          price: 'required', // Precio obligatorio
+          provider: 'required', // Proveedor obligatorio
+          code: 'required', // Código obligatorio
+        }, {
+          'required.name_product': 'El nombre del producto es obligatorio',
+          'required.price': 'El precio es obligatorio',
+          'required.provider': 'El proveedor es obligatorio',
+          'required.code': 'El código es obligatorio',
+        });
 
-        return product;
+        // Verificar si el producto ya está registrado
+        const existingProduct = await models.product.findOne({
+          where: {
+            code: req.body.code,
+          },
+          transaction,
+        });
+
+        if (existingProduct) {
+          throw new CustomError('El código del producto ya está registrado', 400);
+        }
+
+        // Crear el nuevo producto
+        await models.product.create(
+          {
+            name_product: req.body.name_product,
+            price: req.body.price,
+            provider: req.body.provider,
+            code: req.body.code,
+          },
+          { transaction },
+        );
+
+        return 'Producto agregado con éxito';
       });
-      // Transaction complete!
-      res.status(200).send(response.getResponseCustom(200, result));
+
+      // Transacción completada
+      res.status(201).send(response.getResponseCustom(201, result));
       res.end();
     } catch (error) {
-    // Transaction Failed!
+    // Transacción fallida
       next(error);
     }
   },
-
   update: async (req, res, next) => {
     console.log('Solicitud de productos recibida');
     try {
