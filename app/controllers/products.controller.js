@@ -1,3 +1,4 @@
+const { Op } = require('sequelize');
 const models = require('../models');
 const response = require('../functions/serviceUtil.js');
 const paginable = require('../functions/paginable.js');
@@ -10,15 +11,23 @@ module.exports = {
   allProducts: async (req, res, next) => {
     console.log('allProducts llamada');
     try {
-      const { page, per_page } = req.query;
+      const { page, per_page, search } = req.query;
       console.log('req.query', req.query);
+
+      const where = {};
+      if (search) {
+        where[Op.or] = [
+          { name_product: { [Op.like]: `%${search}%` } },
+          { provider: { [Op.like]: `%${search}%` } },
+        ];
+      }
+
       const products = await models.product.findAndCountAll({
-        where: {
-        // agregar condiciones de filtrado aquí y un filters en la const de page
-        },
+        where,
         limit: parseInt(per_page),
         offset: (page - 1) * parseInt(per_page),
       });
+
       const respuesta = paginable.paginatedResponse(products, req.query);
       console.log('Productos', respuesta.data.data);
       res.status(200).send(respuesta);
