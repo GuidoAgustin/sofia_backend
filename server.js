@@ -20,6 +20,9 @@ app.use(bodyParser.json());
 app.use(compression());
 app.use(helmet()); // Add Helmet as a middleware
 app.use(cors); // add cors as middleware
+app.options('*', (req, res) => {
+  res.status(204).end();
+});
 
 // Add Routes and tasks
 const routes = require('./app/routes/index');
