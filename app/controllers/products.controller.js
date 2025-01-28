@@ -51,24 +51,43 @@ module.exports = {
       next(error);
     }
   },
+  oneProduct: async (req, res, next) => {
+    try {
+      const product = await models.product.findOne({
+        where: {
+          product_id: req.params.product_id,
+        },
+      });
+
+      if (!product) throw new CustomError('product not found', 404);
+
+      res.status(200).send(response.getResponseCustom(200, product));
+    } catch (error) {
+      next(error);
+    }
+  },
 
   addProduct: async (req, res, next) => {
     try {
-    // Iniciar transacción
+      // Iniciar transacción
       const result = await models.sequelize.transaction(async (transaction) => {
-      // Validar los datos del formulario
+        // Validar los datos del formulario
         console.log(req.body);
-        await validate(req.body, {
-          name_product: 'required', // Nombre del producto obligatorio
-          price: 'required', // Precio obligatorio
-          provider: 'required', // Proveedor obligatorio
-          code: 'required', // Código obligatorio
-        }, {
-          'required.name_product': 'El nombre del producto es obligatorio',
-          'required.price': 'El precio es obligatorio',
-          'required.provider': 'El proveedor es obligatorio',
-          'required.code': 'El código es obligatorio',
-        });
+        await validate(
+          req.body,
+          {
+            name_product: 'required', // Nombre del producto obligatorio
+            price: 'required', // Precio obligatorio
+            provider: 'required', // Proveedor obligatorio
+            code: 'required', // Código obligatorio
+          },
+          {
+            'required.name_product': 'El nombre del producto es obligatorio',
+            'required.price': 'El precio es obligatorio',
+            'required.provider': 'El proveedor es obligatorio',
+            'required.code': 'El código es obligatorio',
+          },
+        );
 
         // Verificar si el producto ya está registrado
         const existingProduct = await models.product.findOne({
@@ -79,7 +98,10 @@ module.exports = {
         });
 
         if (existingProduct) {
-          throw new CustomError('El código del producto ya está registrado', 400);
+          throw new CustomError(
+            'El código del producto ya está registrado',
+            400,
+          );
         }
 
         // Crear el nuevo producto
@@ -100,14 +122,14 @@ module.exports = {
       res.status(201).send(response.getResponseCustom(201, result));
       res.end();
     } catch (error) {
-    // Transacción fallida
+      // Transacción fallida
       next(error);
     }
   },
-  update: async (req, res, next) => {
+  updateProduct: async (req, res, next) => {
     console.log('Solicitud de productos recibida');
     try {
-    // Start Transaction
+      // Start Transaction
       const result = await models.sequelize.transaction(async (transaction) => {
         const product = await models.product.findByPk(req.params.product_id, {
           transaction,
@@ -115,9 +137,15 @@ module.exports = {
 
         if (!product) throw new CustomError('product not found', 404);
 
-        // UPDATE ATTRIBUTES
-        await product.save({ transaction });
+        const {
+          name_product, price, provider, code,
+        } = req.body;
+        product.name_product = name_product;
+        product.price = price;
+        product.provider = provider;
+        product.code = code;
 
+        await product.save({ transaction });
         return product;
       });
       // Transaction complete!
@@ -129,9 +157,10 @@ module.exports = {
     }
   },
 
-  delete: async (req, res, next) => {
+  onDelete: async (req, res, next) => {
+    console.log('Llamando a onDelete en products.controller.js');
     try {
-    // Start Transaction
+      // Start Transaction
       const result = await models.sequelize.transaction(async (transaction) => {
         const product = await models.product.findByPk(req.params.product_id, {
           transaction,
@@ -139,15 +168,16 @@ module.exports = {
 
         if (!product) throw new CustomError('product not found', 404);
 
+        // UPDATE ATTRIBUTES
         await product.destroy({ transaction });
 
-        return product;
+        return 'Producto eliminado con exito';
       });
       // Transaction complete!
       res.status(200).send(response.getResponseCustom(200, result));
       res.end();
     } catch (error) {
-    // Transaction Failed!
+      console.log('Error al obtener productos:', error);
       next(error);
     }
   },
