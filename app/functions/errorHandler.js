@@ -14,7 +14,7 @@ module.exports = {
     if (
       err.message &&
       // eslint-disable-next-line no-bitwise
-      (~err.message.indexOf('not found') || (~err.message.indexOf('Cast to ObjectId failed')))
+      ((~err.message.indexOf('Cast to ObjectId failed')))
     ) {
       return next();
     }
