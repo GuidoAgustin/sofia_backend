@@ -37,6 +37,21 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.STRING,
         allowNull: false,
       },
+      last_price: {
+        type: DataTypes.INTEGER,
+        allowNull: true,
+        get() {
+          return this.getDataValue('last_price') / 100;
+        },
+        set(value) {
+          this.setDataValue('last_price', value * 100);
+        },
+      },
+      fecha_corta: {
+        type: DataTypes.BOOLEAN,
+        allowNull: false,
+        defaultValue: false,
+      },
     },
     {
       sequelize,

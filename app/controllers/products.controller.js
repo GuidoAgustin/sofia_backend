@@ -129,7 +129,7 @@ module.exports = {
   updateProduct: async (req, res, next) => {
     console.log('Solicitud de productos recibida');
     try {
-      // Start Transaction
+    // Start Transaction
       const result = await models.sequelize.transaction(async (transaction) => {
         const product = await models.product.findByPk(req.params.product_id, {
           transaction,
@@ -140,6 +140,11 @@ module.exports = {
         const {
           name_product, price, provider, code,
         } = req.body;
+
+        // Guardar el precio anterior antes de actualizar
+        product.last_price = product.price;
+
+        // Actualizar los campos del producto
         product.name_product = name_product;
         product.price = price;
         product.provider = provider;
@@ -153,6 +158,51 @@ module.exports = {
       res.end();
     } catch (error) {
       console.log('Error al obtener productos:', error);
+      next(error);
+    }
+  },
+  updatePrices: async (req, res, next) => {
+    console.log('Solicitud de actualización de precios recibida');
+    try {
+      const { productos } = req.body;
+
+      if (!productos || !Array.isArray(productos)) {
+        throw new CustomError('Se esperaba un array de productos', 400);
+      }
+
+      const result = await models.sequelize.transaction(async (transaction) => {
+        const updatedProducts = await Promise.all(
+          productos.map(async (producto) => {
+            const { id, price } = producto;
+
+            if (typeof price !== 'number' || price < 0) {
+              throw new CustomError(`Precio inválido para el producto con ID ${id}`, 400);
+            }
+
+            const product = await models.product.findByPk(id, { transaction });
+            if (!product) {
+              throw new CustomError(`Producto con ID ${id} no encontrado`, 404);
+            }
+
+            // Guardar el precio anterior antes de actualizar
+            product.last_price = product.price;
+
+            // Actualizar el nuevo precio
+            product.price = price;
+
+            await product.save({ transaction });
+
+            return product;
+          }),
+        );
+
+        return updatedProducts;
+      });
+
+      res.status(200).send(response.getResponseCustom(200, result));
+      res.end();
+    } catch (error) {
+      console.log('Error al actualizar precios:', error);
       next(error);
     }
   },
@@ -178,6 +228,27 @@ module.exports = {
       res.end();
     } catch (error) {
       console.log('Error al obtener productos:', error);
+      next(error);
+    }
+  },
+  fecha_corta: async (req, res, next) => {
+    try {
+      const result = await models.sequelize.transaction(async (transaction) => {
+        const product = await models.product.findByPk(req.params.product_id, {
+          transaction,
+        });
+
+        if (!product) throw new CustomError('Producto no encontrado', 404);
+
+        // Cambiar el estado de fecha_corta
+        product.fecha_corta = !product.fecha_corta;
+        await product.save({ transaction });
+
+        return product;
+      });
+
+      res.status(200).send(response.getResponseCustom(200, result));
+    } catch (error) {
       next(error);
     }
   },

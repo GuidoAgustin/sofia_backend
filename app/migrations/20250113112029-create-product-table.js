@@ -34,6 +34,15 @@ module.exports = {
         allowNull: false,
         defaultValue: DataTypes.literal('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'),
       },
+      last_price: {
+        type: DataTypes.INTEGER,
+        allowNull: true,
+      },
+      fecha_corta: {
+        type: DataTypes.BOOLEAN,
+        allowNull: false,
+        defaultValue: false,
+      },
     });
   },
   down: async (queryInterface) => {
