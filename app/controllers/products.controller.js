@@ -11,7 +11,7 @@ module.exports = {
   allProducts: async (req, res, next) => {
     console.log('allProducts llamada');
     try {
-      const { page, per_page, search } = req.query;
+      const { search } = req.query;
       console.log('req.query', req.query);
 
       const where = {};
@@ -22,11 +22,9 @@ module.exports = {
         ];
       }
 
-      const products = await models.product.findAndCountAll({
+      const products = await models.product.findAndCountAll(paginable.paginate({
         where,
-        limit: parseInt(per_page),
-        offset: (page - 1) * parseInt(per_page),
-      });
+      }, req.query));
 
       const respuesta = paginable.paginatedResponse(products, req.query);
       console.log('Productos', respuesta.data.data);
