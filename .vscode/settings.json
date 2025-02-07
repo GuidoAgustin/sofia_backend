@@ -8,4 +8,5 @@
       "editor.defaultFormatter": "dbaeumer.vscode-eslint"
   },
   "task.allowAutomaticTasks": "on",
+  "eslint.format.enable": true,
 }

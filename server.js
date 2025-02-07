@@ -20,6 +20,9 @@ app.use(bodyParser.json());
 app.use(compression());
 app.use(helmet()); // Add Helmet as a middleware
 app.use(cors); // add cors as middleware
+app.options('*', (req, res) => {
+  res.status(204).end();
+});
 
 // Add Routes and tasks
 const routes = require('./app/routes/index');
@@ -42,7 +45,7 @@ app.use((req, res) => {
     });
 });
 
-const server = app.listen(process.env.PORT || 3000, () => {
+const server = app.listen(process.env.PORT || 3001, () => {
   const host = server.address().address;
   const { port } = server.address();
 

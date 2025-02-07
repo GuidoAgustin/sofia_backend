@@ -19,16 +19,7 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.INTEGER,
         primaryKey: true,
       },
-      fullname: {
-        type: DataTypes.VIRTUAL,
-        get() {
-          return `${this.getDataValue('first_name')} ${this.getDataValue('last_name')}`;
-        },
-      },
-      first_name: {
-        type: DataTypes.STRING,
-      },
-      last_name: {
+      name: {
         type: DataTypes.STRING,
       },
       email: {
