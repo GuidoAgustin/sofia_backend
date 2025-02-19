@@ -49,6 +49,21 @@ module.exports = {
       next(error);
     }
   },
+  scanSimple: async (req, res, next) => {
+    try {
+      const product = await models.product.findOne({
+        where: {
+          code: req.params.code,
+        },
+      });
+
+      if (!product) throw new CustomError('product not found', 404);
+
+      res.status(200).send(product); // Envía el producto directamente
+    } catch (error) {
+      next(error);
+    }
+  },
   oneProduct: async (req, res, next) => {
     try {
       const product = await models.product.findOne({

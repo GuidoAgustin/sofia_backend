@@ -12,6 +12,7 @@ router.put('/:product_id', authMiddleware, controllers.ProductsController.update
 router.put('/batch/price_update', authMiddleware, controllers.ProductsController.updatePrices);
 router.delete('/:product_id', authMiddleware, controllers.ProductsController.onDelete);
 router.put('/:product_id/fecha_corta', authMiddleware, controllers.ProductsController.fecha_corta);
+router.get('/scan/simple/:code', authMiddleware, controllers.ProductsController.scanSimple);
 
 module.exports = {
   basePath: '/products',
