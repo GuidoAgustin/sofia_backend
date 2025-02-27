@@ -1,6 +1,5 @@
 const models = require('../models/index.js');
 const response = require('../functions/serviceUtil.js');
-const paginable = require('../functions/paginable.js');
 const CustomError = require('../functions/CustomError.js');
 
 module.exports = {
@@ -8,30 +7,12 @@ module.exports = {
 
   index: async (req, res, next) => {
     try {
-      // Start Transaction
-
-      const result = await models.sequelize.transaction(async (transaction) => {
-        const ventas = await models.ventas.findAndCountAll(
-          paginable.paginate(
-            {
-              transaction,
-            },
-
-            req.query,
-          ),
-        );
-
-        return ventas;
-      });
-
-      // Transaction complete!
-
-      res.status(200).send(paginable.paginatedResponse(result, req.query));
-
-      res.end();
+    // Trae todas las ventas de la BD
+    // Ajusta a findAll o findAndCountAll según necesites
+      const result = await models.ventas.findAll();
+      // Retorna en formato { data: [...] }
+      res.status(200).json({ data: result });
     } catch (error) {
-      // Transaction Failed!
-
       next(error);
     }
   },
@@ -63,9 +44,6 @@ module.exports = {
   },
 
   guardarVenta: async (req, res, next) => {
-    console.log('Petición POST a /ventas recibida');
-    console.log('URL:', req.originalUrl); // <-- Añade esta línea
-    console.log('Body:', req.body);
     try {
       const { total, metodo_pago, productos } = req.body; // <-- Obtén los datos del body
 
