@@ -33,6 +33,11 @@ module.exports = (sequelize, DataTypes) => {
           this.setDataValue('password', bcrypt.hashSync(value, 10));
         },
       },
+      role: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        defaultValue: 'admin', // <--- Rol por defecto: 'admin'
+      },
     },
     {
       scopes: {
