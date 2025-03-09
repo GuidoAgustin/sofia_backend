@@ -3,7 +3,6 @@ module.exports = {
     await queryInterface.addColumn('user', 'role', {
       type: Sequelize.STRING,
       allowNull: false,
-      defaultValue: 'admin',
     });
   },
   down: async (queryInterface) => {

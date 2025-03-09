@@ -18,6 +18,7 @@ module.exports = {
           name: 'required|min:3', // Nombre de usuario obligatorio y mínimo 3 caracteres
           email: 'required|email', // Email obligatorio y válido
           password: 'required|min:6', // Contraseña obligatoria y mínimo 6 caracteres
+          role: 'required', // Rol obligatorio
         }, {
           'required.name': 'El nombre de usuario es obligatorio',
           'min.name': 'El nombre de usuario debe tener al menos 3 caracteres',
@@ -45,6 +46,7 @@ module.exports = {
             name: req.body.name,
             email: req.body.email,
             password: req.body.password, // Asegúrate de que el modelo hashee la contraseña
+            role: req.body.role,
           },
           { transaction },
         );
