@@ -87,12 +87,12 @@ module.exports = {
 
         // Verificar si el usuario existe
         if (!user) {
-          throw new CustomError('Usuario o contraseña incorrectos', 401);
+          throw new CustomError('Email o contraseña incorrectos', 401);
         }
 
         // Verificar si la contraseña es correcta
         if (!user.checkPassword(req.body.password)) {
-          throw new CustomError('Usuario o contraseña incorrectos', 401);
+          throw new CustomError('Email o contraseña incorrectos', 401);
         }
 
         // Crear la respuesta del usuario
