@@ -192,4 +192,22 @@ module.exports = {
       next(error);
     }
   },
+  deleteUser: async (req, res, next) => {
+    try {
+      const { userId } = req.params;
+
+      // Buscar y eliminar el usuario por su ID
+      const user = await models.user.findByPk(userId);
+      if (!user) {
+        throw new CustomError('Usuario no encontrado', 404);
+      }
+
+      await user.destroy();
+
+      res.status(200).send(response.getResponseCustom(200, 'Usuario eliminado exitosamente'));
+    } catch (error) {
+      console.error(error);
+      next(error);
+    }
+  },
 };
