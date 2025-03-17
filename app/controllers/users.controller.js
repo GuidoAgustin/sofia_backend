@@ -1,5 +1,7 @@
+const { Op } = require('sequelize');
 const models = require('../models');
 const response = require('../functions/serviceUtil.js');
+const paginable = require('../functions/paginable.js');
 const auth = require('../middlewares/auth.js');
 const CustomError = require('../functions/CustomError');
 const validate = require('../functions/validate');
@@ -160,6 +162,33 @@ module.exports = {
       res.end();
     } catch (error) {
       // Transacción fallida
+      next(error);
+    }
+  },
+  allUsers: async (req, res, next) => {
+    console.log('allusers llamada');
+    try {
+      const { search } = req.query;
+      console.log('req.query', req.query);
+
+      const where = {};
+      if (search) {
+        where[Op.or] = [
+          { name: { [Op.like]: `%${search}%` } },
+          { role: { [Op.like]: `%${search}%` } },
+          { email: { [Op.like]: `%${search}%` } },
+        ];
+      }
+
+      const users = await models.user.findAndCountAll(paginable.paginate({
+        where,
+      }, req.query));
+
+      const respuesta = paginable.paginatedResponse(users, req.query);
+      console.log('users', respuesta.data.data);
+      res.status(200).send(respuesta);
+    } catch (error) {
+      console.error(error);
       next(error);
     }
   },

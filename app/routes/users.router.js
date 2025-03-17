@@ -7,6 +7,7 @@ const { authMiddleware } = require('../middlewares/auth.js');
 router.post('/registro', [], controllers.usersController.registro);
 router.post('/login', [], controllers.usersController.login);
 router.put('/profile', [authMiddleware], controllers.usersController.updateProfile);
+router.get('/users', [authMiddleware], controllers.usersController.allUsers);
 
 module.exports = {
   basePath: '/',
