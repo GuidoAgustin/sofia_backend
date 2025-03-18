@@ -203,6 +203,8 @@ module.exports = {
             // Actualizar el nuevo precio
             product.price = price;
 
+            product.price_updated_at = new Date();
+
             await product.save({ transaction });
 
             return product;
