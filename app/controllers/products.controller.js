@@ -11,10 +11,12 @@ module.exports = {
   allProducts: async (req, res, next) => {
     console.log('allProducts llamada');
     try {
-      const { search } = req.query;
+      const { search, fecha_corta } = req.query;
       console.log('req.query', req.query);
 
       const where = {};
+
+      // Filtro de búsqueda
       if (search) {
         where[Op.or] = [
           { name_product: { [Op.like]: `%${search}%` } },
@@ -22,9 +24,20 @@ module.exports = {
         ];
       }
 
-      const products = await models.product.findAndCountAll(paginable.paginate({
-        where,
-      }, req.query));
+      const order = [];
+      if (fecha_corta === 'true' || fecha_corta === true) {
+        order.push(['fecha_corta', 'DESC']);
+      }
+
+      const products = await models.product.findAndCountAll(
+        paginable.paginate(
+          {
+            where,
+            order,
+          },
+          req.query,
+        ),
+      );
 
       const respuesta = paginable.paginatedResponse(products, req.query);
       console.log('Productos', respuesta.data.data);
