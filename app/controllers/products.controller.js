@@ -9,10 +9,8 @@ const validate = require('../functions/validate');
 module.exports = {
   name: 'ProductsController',
   allProducts: async (req, res, next) => {
-    console.log('allProducts llamada');
     try {
       const { search, fecha_corta } = req.query;
-      console.log('req.query', req.query);
 
       const where = {};
 
@@ -153,9 +151,8 @@ module.exports = {
     }
   },
   updateProduct: async (req, res, next) => {
-    console.log('Solicitud de productos recibida');
     try {
-    // Start Transaction
+      // Start Transaction
       const result = await models.sequelize.transaction(async (transaction) => {
         const product = await models.product.findByPk(req.params.product_id, {
           transaction,
@@ -172,9 +169,14 @@ module.exports = {
 
         // Actualizar los campos del producto
         product.name_product = name_product;
-        product.price = price;
         product.provider = provider;
         product.code = code;
+
+        // Si el precio cambia, actualiza `price_updated_at`
+        if (product.price !== price) {
+          product.price = price;
+          product.price_updated_at = new Date(); // Actualiza la fecha de actualización
+        }
 
         await product.save({ transaction });
         return product;
@@ -202,7 +204,10 @@ module.exports = {
             const { id, price } = producto;
 
             if (typeof price !== 'number' || price < 0) {
-              throw new CustomError(`Precio inválido para el producto con ID ${id}`, 400);
+              throw new CustomError(
+                `Precio inválido para el producto con ID ${id}`,
+                400,
+              );
             }
 
             const product = await models.product.findByPk(id, { transaction });
